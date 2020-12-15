@@ -1,0 +1,26 @@
+- name: install yum repo
+  shell: curl -C - https://pkg.scaleft.com/scaleft_yum.repo | tee /etc/yum.repos.d/scaleft.repo
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Import a RPM key
+  rpm_key:
+    state: present
+    key: https://dist.scaleft.com/pki/scaleft_rpm_key.asc
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: yum clean metadata
+  command: yum clean metadata
+  args:
+    warn: no
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
+
+- name: Install scaleft-server-tools
+  yum:
+    name: scaleft-server-tools
+    state: present
+    update_cache: true
+  become: yes
+  when: ansible_facts['os_family'] == "RedHat"
