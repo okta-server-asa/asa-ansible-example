@@ -1,0 +1,21 @@
+#INSTALL SFT: SUSE-BASED SUSE: 
+# NOTE: Requires the community zypper module: https://docs.ansible.com/ansible/latest/collections/community/general/zypper_repository_module.html
+
+- name: install zypper repo
+  shell: curl -C - https://pkg.scaleft.com/scaleft_yum.repo | tee /etc/zypp/repos.d/scaleft.repo
+  become: yes
+  when: ansible_facts['os_family'] == "Suse"
+
+- name: Import RPM Key
+  rpm_key:
+    state: present
+    key: https://dist.scaleft.com/pki/scaleft_rpm_key.asc
+  become: yes
+  when: ansible_facts['os_family'] == "Suse"
+
+- name: install scaleft-server-tools
+  community.general.zypper:
+    name: scaleft-server-tools
+    state: present
+  become: yes
+  when: ansible_facts['os_family'] == "Suse"

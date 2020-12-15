@@ -1,0 +1,50 @@
+-
+  name: Install SFT
+  hosts: <hosts>
+  tasks:     
+    #INSTALL
+    - name: Install Debian
+      include_tasks: asa-samples/install-debian.yml
+      when: ansible_facts['os_family'] == "Debian"
+    
+    - name: Install RedHat
+      include_tasks: asa-samples/install-redhat.yml
+      when: ansible_facts['os_family'] == "RedHat"
+    
+    - name: Install Suse
+      include_tasks: asa-samples/install-suse.yml
+      when: ansible_facts['os_family'] == "Suse"
+        
+    #PROVIDE CANONICAL NAME AND ENROLL SERVER
+    - name: Create sft config directory
+      file:
+        path: /etc/sft
+        state: directory
+      become: yes
+
+    - name: Creating canonical file (using server names from the inventory)
+      copy:
+        dest: "/etc/sft/sftd.yaml"
+        content: |
+          ---
+          # CanonicalName: Specifies the name clients should use/see when connecting to this host.
+          CanonicalName: "{{ inventory_hostname }}"
+      become: yes
+
+    - name: Create sft enrollment tolken folder
+      file:
+        path: /var/lib/sftd
+        state: directory
+      become: yes
+
+    - name: Uploading enrollment token
+      copy:
+        dest: "/var/lib/sftd/enrollment.token"
+        content: "{{ asa_enrollment_token }}"
+      become: yes
+
+    - name: Restart sftd agent (to enroll server)
+      service:
+        name: sftd
+        state: restarted
+      become: yes

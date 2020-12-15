@@ -1,0 +1,22 @@
+- name: install repo
+  apt_repository:
+    repo: deb http://pkg.scaleft.com/deb linux main
+    state: present
+    update_cache: yes
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Add repo signing key
+  apt_key:
+    url: https://dist.scaleft.com/pki/scaleft_deb_key.asc
+    state: present
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
+
+- name: Install scaleft-server-tools
+  apt:
+    name: scaleft-server-tools
+    state: present
+    update_cache: true
+  become: yes
+  when: ansible_facts['os_family'] == "Debian"
